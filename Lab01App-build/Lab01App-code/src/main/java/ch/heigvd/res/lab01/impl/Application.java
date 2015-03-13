@@ -92,6 +92,7 @@ public class Application implements IApplication {
        * one method provided by this class, which is responsible for storing the content of the
        * quote in a text file (and for generating the directories based on the tags).
        */
+      storeQuote(quote, "quote-" + i + ".utf8");
       LOG.info(quote.getSource());
       for (String tag : quote.getTags()) {
         LOG.info("> " + tag);
@@ -124,8 +125,26 @@ public class Application implements IApplication {
    * @param filename the name of the file to create and where to store the quote text
    * @throws IOException 
    */
-  void storeQuote(Quote quote, String filename) throws IOException {
-    throw new UnsupportedOperationException("The student has not implemented this method yet.");
+  void storeQuote(Quote quote, String filename) throws IOException 
+  {
+      String directoryName = WORKSPACE_DIRECTORY + "/";
+      for (String s : quote.getTags())
+      {
+          directoryName += s + "/";
+      }
+      
+      File directory = new File(directoryName);
+      
+      if (!directory.exists())
+      {
+          directory.mkdirs();
+      }
+      
+      File file = new File(directoryName + filename);
+      file.createNewFile();
+      /*FileOutputStream os = new FileOutputStream(file);
+      OutputStreamWriter writer = new OutputStreamWriter(os, "UTF8");
+      writer.write(quote.getQuote());*/
   }
   
   /**
@@ -142,13 +161,19 @@ public class Application implements IApplication {
          * of the the IFileVisitor interface inline. You just have to add the body of the visit method, which should
          * be pretty easy (we want to write the filename, including the path, to the writer passed in argument).
          */
+        try
+        {
+            writer.write(file.getPath() + "\n");
+        }
+        catch (IOException e) {}
       }
     });
   }
   
   @Override
-  public String getAuthorEmail() {
-    throw new UnsupportedOperationException("The student has not implemented this method yet.");
+  public String getAuthorEmail() 
+  {
+    return "jan.purro@heig-vd.ch";
   }
 
   @Override

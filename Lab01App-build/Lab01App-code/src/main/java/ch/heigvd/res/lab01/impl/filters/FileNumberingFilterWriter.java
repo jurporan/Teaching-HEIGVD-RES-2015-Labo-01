@@ -18,6 +18,8 @@ import java.util.logging.Logger;
 public class FileNumberingFilterWriter extends FilterWriter {
 
   private static final Logger LOG = Logger.getLogger(FileNumberingFilterWriter.class.getName());
+  private boolean lastCharWasReturnCarriage;
+  private int numberOfLines = 1;
 
   public FileNumberingFilterWriter(Writer out) {
     super(out);
@@ -25,17 +27,74 @@ public class FileNumberingFilterWriter extends FilterWriter {
 
   @Override
   public void write(String str, int off, int len) throws IOException {
-    throw new UnsupportedOperationException("The student has not implemented this method yet.");
+    write(str.toCharArray(), off, len);
   }
 
   @Override
   public void write(char[] cbuf, int off, int len) throws IOException {
-    throw new UnsupportedOperationException("The student has not implemented this method yet.");
+    for(int i = 0; i < len; ++i)
+    {
+        write(cbuf[off + i]);
+    }
   }
 
   @Override
-  public void write(int c) throws IOException {
-    throw new UnsupportedOperationException("The student has not implemented this method yet.");
-  }
-
+    public void write(int c) throws IOException
+    {
+        // It's the beginning of the file, write the number for the first line
+        if(numberOfLines == 1)
+        {
+            super.write((numberOfLines++) + "\t");
+        }
+        
+        // If the last character was a '\r'
+        if(lastCharWasReturnCarriage)
+        {
+            // If the current character is a '\n' (Windows) write it and the 
+            // the beginning of the next line.
+            if(c == '\n')
+            {
+                lastCharWasReturnCarriage = false;
+                super.write(c);
+                super.write((numberOfLines++) + "\t");               
+            }
+            
+            // Two return carriage write two empty lines (suppose it's MacOS)
+            else if (c == '\r')
+            {
+                super.write((numberOfLines++) + "\t");
+                super.write(c);
+                super.write((numberOfLines++) + "\t");
+            }
+            
+            // Other characters. We write it on a new line. (MacOS)
+            else
+            {
+                lastCharWasReturnCarriage = false;
+                super.write((numberOfLines++) + "\t");
+                super.write(c);
+            }
+        }
+        
+        // The last characher was not a return carriage.
+        
+        // The current char is a '\r'
+        else if (c == '\r')
+        {
+            lastCharWasReturnCarriage = true;  
+            super.write(c);
+        }
+        
+        // The current char is '\n' (Linux)
+        else if (c == '\n')
+        {
+            super.write(c);
+            super.write((numberOfLines++) + "\t");
+        }
+        
+        else
+        {
+            super.write(c);
+        }
+    }
 }

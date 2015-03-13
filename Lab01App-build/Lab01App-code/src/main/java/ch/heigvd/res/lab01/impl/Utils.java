@@ -1,6 +1,7 @@
 package ch.heigvd.res.lab01.impl;
 
 import java.util.logging.Logger;
+import java.util.*;
 
 /**
  *
@@ -19,8 +20,33 @@ public class Utils {
    * the line separator, the second element is the remaining text. If the argument does not
    * contain any line separator, then the first element is an empty string.
    */
-  public static String[] getNextLine(String lines) {
-    throw new UnsupportedOperationException("The student has not implemented this method yet.");
+  public static String[] getNextLine(String lines) 
+  {
+      int returnCarriage = lines.indexOf('\r');
+      int newLine = lines.indexOf('\n');
+      String[] output = new String[2];
+      // Windows and Unix
+      if(newLine > -1)
+      {
+          output[0] = lines.substring(0, newLine + 1);
+          output[1] = lines.substring(newLine + 1);
+          return output;
+      }
+      // MacOS
+      else if (returnCarriage > -1)
+      {
+          output[0] = lines.substring(0, returnCarriage + 1);
+          output[1] = lines.substring(returnCarriage + 1);
+          return output;
+      }
+      
+      // No end of line character
+      else
+      {
+          output[0] = "";
+          output[1] = lines;
+          return output;
+      }
   }
 
 }
